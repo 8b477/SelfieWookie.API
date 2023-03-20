@@ -7,9 +7,13 @@ namespace SelfieWookie.Core.Infrastructure.Data.TypeConfiguration
 {
     public class WookieEntityTypeConfiguration : IEntityTypeConfiguration<Wookie>
     {
+        #region public methods
+
         public void Configure(EntityTypeBuilder<Wookie> builder)
         {
             builder.ToTable("Wookie");
         } 
+
+        #endregion
     }
 }

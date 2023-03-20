@@ -8,25 +8,18 @@ namespace SelfieWookie.Core.Infrastructure.Data.Repository
 {
     public class DefaultSelfieRepository : ISelfieRepository
     {
+
+        #region DI
         private readonly SelfieContext _context;
 
         public DefaultSelfieRepository(SelfieContext context)
         {
             _context = context;
-        }
+        } 
+        #endregion
 
+        public IUnitOfWork? UnitWork => _context; // -> On instancie notre UnitOfWork sur noter context actuel.
 
-        // On instancie notre UnitOfWork sur noter context actuel.
-        public IUnitOfWork? UnitWork => _context;
-
-
-
-
-        /// <summary>
-        /// Ajoute un Selfie dans la base de données.
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
         public Selfie? AddOne(Selfie? item)
         {
             if (item is not null)

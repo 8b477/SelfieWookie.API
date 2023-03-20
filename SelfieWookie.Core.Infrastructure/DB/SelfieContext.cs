@@ -5,15 +5,19 @@ using SelfieWookie.Core.Domain;
 using SelfieWookie.Core.Framework;
 using SelfieWookie.Core.Infrastructure.Data.TypeConfiguration;
 
+using System.Diagnostics.CodeAnalysis;
 
 namespace SelfieWookie.Core.Infrastructure.DB
 {
     public class SelfieContext : IdentityDbContext, IUnitOfWork // Ici pour but d'apprentissage je passe mon DbContext en identityDbContext mais normalemnt on crée une API spécifique pour l'auhtentification.
     {
 
+        #region MyRegion
+
         public SelfieContext() : base() { } // => Ne pas oublier d'instancier le ctor vide.
 
-        public SelfieContext(DbContextOptions options) : base(options) {}
+
+        #region Internal method
 
         // Permet de rajouter des fonctionnalité , dire comment une table fonctionne par rapport à une autre.
         // Donc une classe par rapport à une autres.
@@ -27,8 +31,16 @@ namespace SelfieWookie.Core.Infrastructure.DB
             modelBuilder.ApplyConfiguration(new WookieEntityTypeConfiguration());
         }
 
+        #endregion
+
+
+        #region Properties
+
         public DbSet<Selfie> Selfies { get; set; }
         public DbSet<Wookie> Wookies { get; set; }
         public DbSet<Picture> Pictures { get; set; }
+
+        #endregion
+
     }
 }

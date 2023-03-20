@@ -16,7 +16,6 @@ namespace SelfieWookie.API.UI.Controllers
     [ApiController]
     public class AuthenticateController : ControllerBase
     {
-        #region Injections.
         private readonly ILogger<AuthenticateController>? _logger;
         private readonly SecurityOption? _options;
         private readonly UserManager<IdentityUser>? _userManager;
@@ -28,7 +27,7 @@ namespace SelfieWookie.API.UI.Controllers
             _options = options.Value;
             _userManager = userManager;
             _logger.LogDebug("tesst depers");
-        } 
+        }
         #endregion
 
         #endregion
@@ -51,13 +50,12 @@ namespace SelfieWookie.API.UI.Controllers
             };
             if (_userManager is not null)
             {
-                var success = await _userManager.CreateAsync(user, dtoUser.Password);
+            var success = await _userManager.CreateAsync(user, dtoUser.Password);
 
-                if (success.Succeeded)
-                {
-                    dtoUser.Token = GenerateJwtToken(user);
-                    result = Ok(dtoUser);
-                }
+            if (success.Succeeded)
+            {
+                dtoUser.Token = GenerateJwtToken(user);
+                result = Ok(dtoUser);
             }
             return result;
         }
@@ -72,36 +70,30 @@ namespace SelfieWookie.API.UI.Controllers
         [HttpPost]
         public async Task<IActionResult> Login([FromBody]AuthenticateUserDto dtoUser)
         {
+
             IActionResult result = BadRequest();
 
             try
             {
-                if (_userManager is not null)
+            var user = await _userManager.FindByEmailAsync(dtoUser.Login);
+
+            var passIsValide = await _userManager.CheckPasswordAsync(user, dtoUser.Password);
+
+            if (passIsValide)
+            {
+                if (user is not null)
                 {
-                    var user = await _userManager.FindByEmailAsync(dtoUser.Login);
-
-                    var passIsValide = await _userManager.CheckPasswordAsync(user, dtoUser.Password);
-
-                    if (passIsValide)
-                    {
-                        if (user is not null)
+                        result = Ok(new AuthenticateUserDto()
                         {
-                                result = Ok(new AuthenticateUserDto()
-                                {
-                                    Login = user.Email,
-                                    Name = user.UserName,
-                                    Token = GenerateJwtToken(user)
-                                });      
-                        }
-                    }
+                            Login = user.Email,
+                            Name = user.UserName,
+                            Token = GenerateJwtToken(user)
+                        });      
                 }
+            }
             }
             catch (Exception ex)
             {
-                if (_logger is not null)
-                {
-                    _logger.LogError(ex.Message, dtoUser);
-                }
             }
             return result;
         }
@@ -116,9 +108,6 @@ namespace SelfieWookie.API.UI.Controllers
         private string GenerateJwtToken(IdentityUser user)
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
-
-            byte[] key = Encoding.UTF8.GetBytes(_options?.Key ?? "");
-
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]

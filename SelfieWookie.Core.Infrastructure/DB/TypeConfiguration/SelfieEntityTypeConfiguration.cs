@@ -6,6 +6,8 @@ namespace SelfieWookie.Core.Infrastructure.Data.TypeConfiguration
 {
     public class SelfieEntityTypeConfiguration : IEntityTypeConfiguration<Selfie>
     {
+        #region Public methods
+
         // Ne pas oublier de modelBuilder.ApplyConfiguration(new SelfieEntityTypeConfiguration());
         // => Dans le Model Builder (ici Selfieontext)
 
@@ -17,10 +19,13 @@ namespace SelfieWookie.Core.Infrastructure.Data.TypeConfiguration
             // Ici je m'assure qu'il prend l'id comme clef primaire
             builder.HasKey(x => x.Id);
 
+
             // Je lui dit que notre selfie n'a que un Wookie
             builder.HasOne(x => x.Wookie)
                 // Ici je lui dit que par contre attention mon wookie peut avoir plusieurs >Selfie<.
                 .WithMany(x => x.Selfies);
         }
+
+        #endregion
     }
 }

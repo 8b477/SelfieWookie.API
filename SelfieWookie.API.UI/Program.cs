@@ -7,7 +7,6 @@ using SelfieWookie.Core.Infrastructure.DB;
 using SelfieWookie.Core.Infrastructure.Logger;
 
 var builder = WebApplication.CreateBuilder(args);
-// Ajout de notre logger perso dans nos projets.
 builder.Logging.AddProvider(new LoggerCustomProvider());
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -18,6 +17,7 @@ builder.Services.AddDbContext<SelfieContext>
     (
     options => options.UseSqlServer(builder.Configuration.GetConnectionString("DBSelfieWookie"))
     );
+
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 {

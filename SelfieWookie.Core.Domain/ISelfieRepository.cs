@@ -5,7 +5,6 @@ namespace SelfieWookie.Core.Domain
     /// <summary>
     /// Handler of Selfie.
     /// </summary>
-    public interface ISelfieRepository : IRepository // IRepository viens de mon projet framework.
     {
 
         /// <summary>

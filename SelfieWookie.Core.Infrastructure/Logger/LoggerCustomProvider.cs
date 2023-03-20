@@ -6,6 +6,7 @@ namespace SelfieWookie.Core.Infrastructure.Logger
 {
     public class LoggerCustomProvider : ILoggerProvider
     {
+
         private ConcurrentDictionary<string, LoggerCustomMessage> _loggerList = new ConcurrentDictionary<string, LoggerCustomMessage>();
 
         public ILogger CreateLogger(string categoryName)

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Cors;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 using SelfieWookie.API.UI.Apllications.DTO;
@@ -17,29 +19,33 @@ namespace SelfieWookie.API.UI.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] // => Je spécifie que sur ce controller un token valide devras être vérifié avant de pouvoir continuer à utiliser le controller.
     [EnableCors(SecurityMethods.DEFAULT_POLICY)] // => Je spécifie un CORS particulier, valide la requete AJAX ou WebSocket.
 
     public class SelfieController : ControllerBase
     {
+
         #region Injections.
+
         private readonly ISelfieRepository _repository;
 
-        // < IWebHostEnvironment > Fournit des informations sur l’environnement d’hébergement web dans lequel une application s’exécute.
         // Donne l'emplacement de l'application sur notre pc,
         // permet de retrouver dans quelle dossier
         // et de créée d'autre dossier, enregistrer, ..
         private readonly IWebHostEnvironment _webHostEnvironment;
+        #endregion
 
         #region Constructor.
+
         public SelfieController(ISelfieRepository repository, IWebHostEnvironment hostEnvironment)
         {
             _repository = repository;
             _webHostEnvironment = hostEnvironment;
         }
+
         #endregion
         #endregion
 
+        #region Donne la liste des Selfie -> Qui sont lié par au moins un Wookie.
 
         /// <summary>
         /// Renvoie la liste des Selfies
@@ -48,23 +54,29 @@ namespace SelfieWookie.API.UI.Controllers
         /// <response code = "200">Succès</response>
         /// <response code = "204">NoContent</response>
         /// <response code = "404">NotFound</response>
+
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult GetAll()
         {
+            #region Commentaire
+
+            // Je récupère en premier ma méthode via le repository < GetAll() >
+            // Je crée un modèle à l'intérieur de ma variable < model >
+            // un nouvelle objet constuit sur base des critères dispo dans mon DTO 
+            #endregion
+
             var selfieList = _repository.GetAll();
 
             if (selfieList is not null)
             {
                 var model = selfieList.Select(item => new SelfieResumeDto()
                 {
-                    Title = item.Title ?? "",
                     WookieID = item.WookieID,
-                    NbSelfieWookie = item?.Wookie?.Selfies?.Count > 0 ? item.Wookie.Selfies.Count : 0,
                 }).ToList();
 
                 if (model == null)
                 {
-                    return BadRequest();
                 }
 
                 return Ok(model);
@@ -72,7 +84,9 @@ namespace SelfieWookie.API.UI.Controllers
             return BadRequest("Une erreur s'est produite !");
         }
 
+        #endregion
 
+        #region Méthode pour ajouter un Selfie.
 
         /// <summary>
         /// Ajout d'un Selfie en DB
@@ -82,41 +96,37 @@ namespace SelfieWookie.API.UI.Controllers
         /// <response code = "200">Succès</response>
         /// <response code = "400">BadRequest</response>
         /// </returns>
-        /// 
         [HttpPost]
         public IActionResult AddOne(SelfieDto model)
         {
 
             IActionResult result = BadRequest();
 
-            SelfieDto newDto = new() { Title = model.Title };
 
             Selfie? mapGetSelfie = SelfieDto.MapDtoToSelfie(newDto);
 
             if (mapGetSelfie is not null)
             {
-                Selfie? addNewSelfie = _repository.AddOne(mapGetSelfie);
+            Selfie? addNewSelfie = _repository.AddOne(mapGetSelfie);
 
-                if (addNewSelfie != null)
-                {
-                    model.Id = addNewSelfie.Id; // On met à jour l'id !
 
-                    _repository?.UnitWork?.SaveChanges();
+            if (addNewSelfie != null)
+            {
+                model.Id = addNewSelfie.Id; // On met à jour l'id !
 
-                    result = Ok(model);
-                }
+                _repository?.UnitWork?.SaveChanges();
+
+                result = Ok(model);
+            }
             }
 
             return result;
         }
 
+        #endregion
 
+        #region Retourne un Wookie sur base de son ID.
 
-        /// <summary>
-        /// Récupère un Wookie sur base de son id.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         [HttpGet]
         [Route("GetByIdWookie")]
         public IActionResult GetById([FromQuery] int id)
@@ -124,25 +134,55 @@ namespace SelfieWookie.API.UI.Controllers
             return Ok(_repository.GetById(id));
         }
 
+        #endregion
 
+        #region Retourne un model SelfieDto sur base d'un ID récupérer par Query.
 
-        /// <summary>
-        /// Récupère
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
         [HttpGet]
         [Route("GetByIdSelfieResumeDto")]
-        public IActionResult testByID([FromQuery] int id)
         {
 
+            //Je récupère la méthode préparé dans mon DefautlRepository
             var result = _repository.GetByIDWookieAndSelfie(id);
 
+            // Je construit le model que je veut retourner ici SelfieResumeDto
+            // J'ai créé cette classe au préalable
+            // dans ma solution principal cad => UI
+            // => configuration
+            // => DTO
+            //var model = result.Select(item => new SelfieResumeDto()
+            //{
+            //    Title = item.Title,
+            //    WookieID = item.WookieID,
+            //    NbSelfieWookie = (item.Wookie?.Selfies?.Count()).GetValueOrDefault(0)
+            //});
+
+            //return Ok(model);
             return Ok(result);
 
         }
 
-       
+        #endregion
+
+        #region Méthode pour ajouter une photos (1).
+
+        //[Route("photo")]
+        //[HttpPost]
+        //public async Task<IActionResult> AddPicture()
+        //{
+
+        //    // J'ouvre mon StreamReader pour lire le contenu de mon fichier images reçus.
+        //    using var stream = new StreamReader(this.Request.Body);
+
+        //    //Je le lis en traitement asynchrone.
+        //    var content = await stream.ReadToEndAsync();
+
+        //    return this.Ok();
+        //}
+
+        #endregion
+
+        #region Pour ajouter une photo (2), enregistrer l'image dans un/des dossier(s), où l'application s'exécute.
 
         /// <summary>
         /// Enregistre une image.
@@ -182,5 +222,6 @@ namespace SelfieWookie.API.UI.Controllers
             // Je retourne un 200 Ok() tout est bien qui fini bien.
             return Ok();
         }
+        #endregion
     }
 }

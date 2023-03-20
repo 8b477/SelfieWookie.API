@@ -4,9 +4,11 @@ namespace SelfieWookie.API.UI.Apllications.DTO
 {
     public class SelfieDto
     {
-        public int Id { get; set; }
-        public string? Title { get; set; }
+        #region Properties
 
+        public int Id { get; set; }
+
+        #endregion
 
         /// <summary>
         /// Prend SelfieDto et le retourne sous forme Selfie.
@@ -15,7 +17,6 @@ namespace SelfieWookie.API.UI.Apllications.DTO
         /// <returns></returns>
         public static Selfie? MapDtoToSelfie(SelfieDto model)
         {
-            Selfie wookie = new() { Title = model.Title };
             return wookie;
         }
     }

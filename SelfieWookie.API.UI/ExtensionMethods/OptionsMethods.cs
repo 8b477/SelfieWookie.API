@@ -12,5 +12,8 @@ namespace SelfieWookie.API.UI.ExtensionMethods
         {
             services.Configure<SecurityOption>(configuration.GetSection("Jwt"));
         }
+
+        // Plus d'info sur la classe :
+        // Ici je crée donc une classe pour géré l
     }
 }

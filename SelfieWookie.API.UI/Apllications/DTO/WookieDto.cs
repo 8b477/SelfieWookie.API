@@ -6,6 +6,7 @@ namespace SelfieWookie.API.UI.Apllications.DTO
     {
         public string? Surname { get; set; }
 
+
         /// <summary>
         /// Prend un Wookie et le retourne sous forme DTO.
         /// </summary>
@@ -13,7 +14,6 @@ namespace SelfieWookie.API.UI.Apllications.DTO
         /// <returns></returns>
         public WookieDto? MapWookieToDto(Wookie model) {
 
-            WookieDto wookie = new() { Surname = model.Surname };
             return wookie;
         }
 
@@ -26,7 +26,6 @@ namespace SelfieWookie.API.UI.Apllications.DTO
         /// <returns></returns>
         public Wookie? MapDtoToWookie(WookieDto model)
         {
-            Wookie wookie = new() { Surname = model.Surname};
             return wookie;
         }
     }
